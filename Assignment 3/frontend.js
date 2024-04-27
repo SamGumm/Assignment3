@@ -5,7 +5,46 @@ Date :  04/16
 */
 
 //const { response } = require("express");
+// document.addEventListener('DOMContentLoaded', function() {
+//   fetchAllProducts();
+// });
+
 document.addEventListener('DOMContentLoaded', function() {
+  // Create views and buttons
+  function showView(viewId) {
+    // Hide all views
+    document.querySelectorAll('#views > div').forEach(view => {
+      view.style.display = 'none';
+    });
+    document.getElementById(viewId).style.display = 'block';
+  }
+  const views = ['get', 'post', 'delete', 'update'];
+  const container = document.createElement('div');
+  container.id = 'views';
+
+  views.forEach(view => {
+    const viewDiv = document.createElement('div');
+    viewDiv.id = `view-${view}`;
+    viewDiv.style.display = 'none';
+    viewDiv.innerHTML = `<h2>${view.toUpperCase()} Products</h2>`;
+    container.appendChild(viewDiv);
+  });
+
+  document.body.insertBefore(container, document.body.firstChild); // Insert views container at the top of the body
+
+  const navigation = document.createElement('div');
+  navigation.id = 'navigation';
+  views.forEach(view => {
+    const button = document.createElement('button');
+    button.textContent = view.toUpperCase();
+    button.onclick = () => showView(`view-${view}`);
+    navigation.appendChild(button);
+  });
+
+  document.body.insertBefore(navigation, document.body.firstChild);
+
+  // Show default view
+  showView('view-get');
   fetchAllProducts();
 });
 
