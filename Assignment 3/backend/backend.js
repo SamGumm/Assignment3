@@ -104,36 +104,37 @@ app.post("/addProduct", async (req, res) => {
     });
 
     app.put("/updateProduct/:id", async (req, res) => {
-        try{
-        if (results.matchedCount === 0) {
-            return res.status(404).send({ message: 'Robot not found' });
-        }
-        const id = Number(req.params.id);
-        const query = { id: id };
-        await client.connect();
-        console.log("Product to Update :",id);
-        // Data for updating the document, typically comes from the request body
-        console.log(req.body);
-        const updateData = {
-        $set:{
-            "id": req.body.id,
-            "title": req.body.name,
-            "price": req.body.price,
-            "description": req.body.description,
-            "category": req.body.category,
-            "image": req.body.image,
-            "rating": req.body.rating
-        }
-        };
-        // Add options if needed, for example { upsert: true } to create a document if it doesn't exist
-        //const options = { };
-        const results = await db.collection("catalog").updateOne(query, updateData, options);
-        res.status(200);
-        res.send(results);
-        }
-        catch(error){
+        try {
+            const id = Number(req.params.id);
+            const query = { id: id };
+    
+            // Data for updating the document, typically comes from the request body
+            const updateData = {
+                $set: {
+                    "id": req.body.id,
+                    "title": req.body.name,
+                    "price": req.body.price,
+                    "description": req.body.description,
+                    "category": req.body.category,
+                    "image": req.body.image,
+                    "rating": req.body.rating
+                }
+            };
+    
+            await client.connect();
+            console.log("Product to Update :", id);
+            console.log(req.body);
+    
+            const results = await db.collection("catalog").updateOne(query, updateData);
+    
+            if (results.matchedCount === 0) {
+                return res.status(404).send({ message: 'Robot not found' });
+            }
+    
+            res.status(200).send(results);
+        } catch (error) {
             console.error("Error updating product:", error);
-    res.status(500).send({ message: 'Internal Server Error' });
+            res.status(500).send({ message: 'Internal Server Error' });
         }
         });
     
