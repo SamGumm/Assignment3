@@ -95,14 +95,13 @@ async function fetchAllProducts() {
       productDiv.className = 'product';
 
       const img = document.createElement('img');
-      img.src = product.image || 'default-image.jpg'; // Default image if none provided
+      img.src = product.image || 'path/to/default-image.jpg'; // Default image if none provided
       img.alt = 'Product Image';
       productDiv.appendChild(img);
 
       const details = document.createElement('div');
       details.className = 'product-details';
-      const name = product.title || 'Unnamed Product'; 
-      details.innerHTML = `<strong>${name}</strong><br>${product.description}<br>Price: $${product.price.toFixed(2)}`;
+      details.innerHTML = `<strong>${product.title}</strong><br>${product.description}<br>Price: $${product.price.toFixed(2)}`;
       productDiv.appendChild(details);
 
       container.appendChild(productDiv);
