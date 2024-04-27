@@ -137,6 +137,5 @@ app.post("/addProduct", async (req, res) => {
         }
         });
     
-    
 
 

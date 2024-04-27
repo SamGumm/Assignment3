@@ -34,18 +34,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const navigation = document.createElement('div');
   navigation.id = 'navigation';
-  views.forEach(view => {
-    const button = document.createElement('button');
-    button.textContent = view.toUpperCase();
-    button.onclick = () => showView(`view-${view}`);
-    navigation.appendChild(button);
-  });
+
+
+  //GET Button
+  const getButton = document.createElement('button');
+  getButton.textContent = 'GET';
+  getButton.onclick = () => {
+    showView('view-get');
+  fetchAllProducts();
+};
+  navigation.appendChild(getButton);
+
+  // Add POST button to navigation
+  const postButton = document.createElement('button');
+  postButton.textContent = 'POST';
+  postButton.onclick = () => {
+    showPostForm();
+    showView('view-post');
+  };
+  navigation.appendChild(postButton);
+
+  // Add event listeners for delete and update buttons
+  const deleteButton = document.createElement('button');
+  deleteButton.textContent = 'DELETE';
+  deleteButton.onclick = () => {
+    showDeleteForm();
+    showView('view-delete');
+  };
+  navigation.appendChild(deleteButton);
+
+  const updateButton = document.createElement('button');
+  updateButton.textContent = 'UPDATE';
+  updateButton.onclick = () => {
+    showUpdateForm();
+    showView('view-update');
+  };
+  navigation.appendChild(updateButton);
 
   document.body.insertBefore(navigation, document.body.firstChild);
 
   // Show default view
-  showView('view-get');
-  fetchAllProducts();
+  //showView('view-get');
+  //fetchAllProducts();
 });
 
 
@@ -82,4 +112,221 @@ async function fetchAllProducts() {
     document.getElementById('product-list').textContent = 'Products not found.';
   }
 }
+
+function showPostForm() {
+  //Hide get all view
+  document.getElementById('view-get').style.display = 'none';
+  
+  // Get the view container
+  const container = document.getElementById('view-post');
+  container.innerHTML = ''; // Clear previous content
+
+  const header = document.createElement('h2');
+  header.textContent = 'POST Product';
+  container.appendChild(header);
+
+  // Create form elements
+  const form = document.createElement('form');
+  form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    // Get form data
+    const formData = new FormData(form);
+    const newProduct = {};
+    for (const [key, value] of formData.entries()) {
+      if (['id', 'price', 'rating'].includes(key)) {
+        newProduct[key] = parseInt(value); // Parse id, price, and rating as integers
+      } else {
+        newProduct[key] = value;
+      }
+    }
+
+    // Post the new product
+    await postNewProduct(newProduct);
+
+    // Clear the form
+    form.reset();
+  });
+
+  const idInput = createTextInput('id', 'ID:');
+  const nameInput = createTextInput('name', 'Name:');
+  const priceInput = createTextInput('price', 'Price:');
+  const descriptionInput = createTextInput('description', 'Description:');
+  const categoryInput = createTextInput('category', 'Category:');
+  const imageInput = createTextInput('image', 'Image:');
+  const ratingInput = createTextInput('rating', 'Rating:');
+
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Add Product';
+
+  // Append form elements to the form
+  form.appendChild(idInput);
+  form.appendChild(nameInput);
+  form.appendChild(priceInput);
+  form.appendChild(descriptionInput);
+  form.appendChild(categoryInput);
+  form.appendChild(imageInput);
+  form.appendChild(ratingInput);
+  form.appendChild(submitButton);
+
+  // Append form to the container
+  container.appendChild(form);
+}
+
+function createTextInput(name, label) {
+  const labelElement = document.createElement('label');
+  labelElement.textContent = label;
+  const inputElement = document.createElement('input');
+  inputElement.type = 'text';
+  inputElement.name = name;
+  labelElement.appendChild(inputElement);
+  return labelElement;
+}
+
+async function postNewProduct(newProduct) {
+  const url = 'http://localhost:8081/addProduct';
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newProduct)
+    });
+    if (!response.ok) throw new Error('Error adding product');
+    console.log('Product added successfully');
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+function showDeleteForm() {
+  // Hide get all view
+  document.getElementById('view-get').style.display = 'none';
+  // Get the view container
+  const container = document.getElementById('view-delete');
+  container.innerHTML = ''; // Clear previous content
+
+  // Create form elements
+  const form = document.createElement('form');
+  form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    // Get form data
+    const formData = new FormData(form);
+    const id = formData.get('id');
+
+    // Delete the product
+    await deleteProduct(id);
+
+    // Clear the form
+    form.reset();
+  });
+
+  const idInput = createTextInput('id', 'ID:');
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Delete Product';
+
+  // Append form elements to the form
+  form.appendChild(idInput);
+  form.appendChild(submitButton);
+
+  // Append form to the container
+  container.appendChild(form);
+}
+
+function showUpdateForm() {
+  // Hide get all view
+  document.getElementById('view-get').style.display = 'none';
+  // Get the view container
+  const container = document.getElementById('view-update');
+  container.innerHTML = ''; // Clear previous content
+
+  // Create form elements
+  const form = document.createElement('form');
+  form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    // Get form data
+    const formData = new FormData(form);
+    const id = parseInt(formData.get('id'));
+    const name = formData.get('name');
+    const price = parseInt(formData.get('price'));
+    const description = formData.get('description');
+    const category = formData.get('category');
+    const image = formData.get('image');
+    const rating = parseInt(formData.get('rating'));
+
+    // Update the product
+    await updateProduct(id, name, price, description, category, image, rating);
+
+    // Clear the form
+    form.reset();
+  });
+
+  const idInput = createTextInput('id', 'ID:');
+  const nameInput = createTextInput('name', 'Name:');
+  const priceInput = createTextInput('price', 'Price:');
+  const descriptionInput = createTextInput('description', 'Description:');
+  const categoryInput = createTextInput('category', 'Category:');
+  const imageInput = createTextInput('image', 'Image:');
+  const ratingInput = createTextInput('rating', 'Rating:');
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Update Product';
+
+  // Append form elements to the form
+  form.appendChild(idInput);
+  form.appendChild(nameInput);
+  form.appendChild(priceInput);
+  form.appendChild(descriptionInput);
+  form.appendChild(categoryInput);
+  form.appendChild(imageInput);
+  form.appendChild(ratingInput);
+  form.appendChild(submitButton);
+
+  // Append form to the container
+  container.appendChild(form);
+}
+
+async function deleteProduct(id) {
+  const url = `http://localhost:8081/deleteProduct/${id}`;
+  try {
+    const response = await fetch(url, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Error deleting product');
+    console.log('Product deleted successfully');
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+async function updateProduct(id, name, price, description, category, image, rating) {
+  const url = `http://localhost:8081/updateProduct/${id}`;
+  try {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id,
+        name,
+        price,
+        description,
+        category,
+        image,
+        rating
+      })
+    });
+    if (!response.ok) throw new Error('Error updating product');
+    console.log('Product updated successfully');
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
 
