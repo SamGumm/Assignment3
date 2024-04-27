@@ -32,7 +32,8 @@ async function fetchAllProducts() {
 
       const details = document.createElement('div');
       details.className = 'product-details';
-      details.innerHTML = `<strong>${product.name}</strong><br>${product.description}<br>Price: $${product.price.toFixed(2)}`;
+      const name = product.title || 'Unnamed Product'; 
+      details.innerHTML = `<strong>${name}</strong><br>${product.description}<br>Price: $${product.price.toFixed(2)}`;
       productDiv.appendChild(details);
 
       container.appendChild(productDiv);
