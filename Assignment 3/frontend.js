@@ -4,7 +4,7 @@ ISU Netid : smgumm@iastate.edu
 Date :  04/16
 */
 
-const { response } = require("express");
+//const { response } = require("express");
 document.addEventListener('DOMContentLoaded', function() {
   fetchAllProducts();
 });
@@ -26,7 +26,7 @@ async function fetchAllProducts() {
       productDiv.className = 'product';
 
       const img = document.createElement('img');
-      img.src = product.imageUrl || 'path/to/default-image.jpg'; // Default image if none provided
+      img.src = product.image || 'default-image.jpg'; // Default image if none provided
       img.alt = 'Product Image';
       productDiv.appendChild(img);
 
